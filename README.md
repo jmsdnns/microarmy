@@ -24,6 +24,7 @@ Here is roughly using micro army looks like.
     Loading cannons...    Done!
     command :: fire
       target: 'http://webserver' 
+    REPORT ]-------------------
     Num_Trans,Elapsed,Tran_Rate
     3679,9.54,385.64
     3635,9.48,383.29
