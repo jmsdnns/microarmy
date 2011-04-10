@@ -7,6 +7,8 @@ It then parses the Siege output to return something like a CSV.
 
 ## Example Use:
 
+Here is roughly using micro army looks like.
+
     $ ./command_center.py 
     command :: help
       help:     This menu.
