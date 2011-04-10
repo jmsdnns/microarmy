@@ -37,3 +37,15 @@ There are only a few requirements.
 2. paramiko
 3. boto
 
+## Config
+
+You should create a local_settings.py inside the repo and fill in the following
+keys. Look at `settings.py` for more information.
+
+* aws_access_key
+* aws_secret_key
+* security_groups
+* key_pair_name
+* num_cannons
+* ec2_ssh_key
+
