@@ -62,6 +62,7 @@ while True:
             report = slam_host(_cannon_hosts, target)
 
             # *close* to a CSV
+            print 'Results ]------------------'
             print 'Num_Trans,Elapsed,Tran_Rate'
             for idx in xrange(len(report['num_trans'])):
                 print '%s,%s,%s' % (report['num_trans'][idx],
