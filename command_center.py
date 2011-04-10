@@ -3,13 +3,11 @@
 """The command center is where assault coordination takes place. A typical use
 would be to initialize a bunch of micro instances and use them as siege cannons.
 
-The cannons then open a zeromq socket and wait for instructions from the command
-center. A JSON message is sent that tells the siege configuration to use and the
-siege output is sent back to the command center for processing / aggregation.
-
 The interface is a prompt offering help and funcitons for building / controlling
 the cannons. It is advised you double check the behavior of the system through
 Amazon's web interface too.
+
+Access to the cannon's is done via SSH inside eventlet greenpiles.
 
 EC2 console: https://console.aws.amazon.com/ec2/
 """
