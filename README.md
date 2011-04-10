@@ -1,9 +1,10 @@
 # Micro Army
 
-This is a tool for deploying lots of ec2 micro's, loading siege on them, and
-coordinating a load test on webservers. 
+This is a tool to quickly turn on some number of AWS micro instances and have them slam a webserver simultaneously, using Siege[1].
 
-It then parses the Siege output to return something like a CSV.
+Siege is a flexible load testing tool. You can configure different payloads and frequencies and all kinds of good stuff. So the trick for microarmy is to get Siege on a bunch of computers quickly and coordinate the micro instances to work in parallel. The micro instances are controlled via SSH in parallel, thanks to Eventlet + Paramiko.
+
+After the micro's have finished, the output from each Siege instance is parsed to produce a CSV report.
 
 ## Example Use:
 
@@ -34,7 +35,7 @@ Here is roughly using micro army looks like.
 
 There are only a few requirements.
 
-1. [eventlet](http://eventlet.net)
+1. [eventlet](http://eventlet.net/)
 2. [paramiko](http://www.lag.net/paramiko/)
 3. [boto](http://boto.cloudhackers.com/)
 
