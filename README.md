@@ -1,6 +1,6 @@
 # Micro Army
 
-This is a tool to quickly turn on some number of AWS micro instances and have them slam a webserver simultaneously. The micro's are effectively (Siege)[http://www.joedog.org/index/siege-home] cannons.
+This is a tool to quickly turn on some number of AWS micro instances and have them slam a webserver simultaneously. The micro's are effectively [Siege](http://www.joedog.org/index/siege-home) cannons.
 
 Siege is a flexible load testing tool. You can configure different payloads and frequencies and all kinds of good stuff. So the trick for microarmy is to get Siege on a bunch of computers quickly and coordinate the micro instances to work in parallel. The micro instances are controlled via SSH in parallel, thanks to Eventlet + Paramiko.
 
