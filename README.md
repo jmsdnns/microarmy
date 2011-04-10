@@ -34,9 +34,11 @@ Here is roughly using micro army looks like.
 
 There are only a few requirements.
 
-1. eventlet
-2. paramiko
-3. boto
+1. [eventlet](http://eventlet.net)
+2. [paramiko](http://www.lag.net/paramiko/)
+3. [boto](http://boto.cloudhackers.com/)
+
+    $ pip install eventlet paramiko boto
 
 ## Config
 
