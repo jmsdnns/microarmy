@@ -1,6 +1,6 @@
 # Micro Army
 
-This is a tool to quickly turn on some number of AWS micro instances and have them slam a webserver simultaneously, using (Siege)[http://www.joedog.org/index/siege-home].
+This is a tool to quickly turn on some number of AWS micro instances and have them slam a webserver simultaneously. The micro's are effectively (Siege)[http://www.joedog.org/index/siege-home] cannons.
 
 Siege is a flexible load testing tool. You can configure different payloads and frequencies and all kinds of good stuff. So the trick for microarmy is to get Siege on a bunch of computers quickly and coordinate the micro instances to work in parallel. The micro instances are controlled via SSH in parallel, thanks to Eventlet + Paramiko.
 
@@ -33,12 +33,7 @@ Here is roughly using micro army looks like.
 
 ## Requirements
 
-There are only a few requirements.
-
-1. [eventlet](http://eventlet.net/)
-2. [paramiko](http://www.lag.net/paramiko/)
-3. [boto](http://boto.cloudhackers.com/)
-
+There are only a few requirements. Everything required for the micro's is installed on the micro's, after all.
 
     $ pip install eventlet paramiko boto
 
