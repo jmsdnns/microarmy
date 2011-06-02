@@ -16,6 +16,7 @@ apt-get -y install \
     python-pip \
     siege
 
+apt-get install cython
 pip install cython
 
 ### Build zeromq from source
