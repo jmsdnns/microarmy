@@ -51,9 +51,7 @@ def init_cannons():
                   key_name=key_pair_name,
                   instance_type=instance_type)
 
-    ### Store public_dns_names
-    public_dns_names = []
-
+    hosts = []
     running = False
     while not running:
         time.sleep(5)
@@ -63,10 +61,15 @@ def init_cannons():
             running = True
             print 'Done!'
             for i in r.instances:
-                print '%s|%s|%s|%s' % (i.ami_launch_index, r.id, 
-                                       i.public_dns_name, i.private_dns_name)
-                public_dns_names.append(i.public_dns_name)
-    return public_dns_names
+                hosts.append((i.id, i.public_dns_name))
+    print 'Hosts config:', hosts
+    return hosts
+
+def terminate_cannons(host_ids):
+    """
+    """
+    ec2_conn = boto.connect_ec2(aws_access_key, aws_secret_key)
+    ec2_conn.terminate_instances(host_ids)
 
 def _setup_a_cannon(hostname):
     """Connects to the hostname and installs all the tools required for the
@@ -87,13 +90,13 @@ def _setup_a_cannon(hostname):
 
     # execute the setup script (expect this call to take a while)
     response = exec_command(ssh_conn, 'sudo ./%s' % CANNON_INIT_SCRIPT)
-    return (hostname, response)
-
+    return (hostname, response)    
+    
 def setup_cannons(hostnames):
     """Launches a coroutine to configure each host and waits for them to
     complete before compiling a list of responses
     """
-    print 'Loading cannons... ',
+    print '  Loading cannons... ',
     pile = eventlet.GreenPile(pool)
     for h in hostnames:
         pile.spawn(_setup_a_cannon, h)

@@ -1,46 +1,79 @@
 # Micro Army
 
-This is a tool to quickly turn on some number of AWS micro instances and have them slam a webserver simultaneously. The micro's are effectively [Siege](http://www.joedog.org/index/siege-home) cannons.
+This is a tool to quickly turn on some number of AWS micro instances and have 
+them slam a webserver simultaneously. The micro's are effectively
+[Siege](http://www.joedog.org/index/siege-home) cannons.
 
-Siege is a flexible load testing tool. You can configure different payloads and frequencies and all kinds of good stuff. So the trick for microarmy is to get Siege on a bunch of computers quickly and coordinate the micro instances to work in parallel. The micro instances are controlled via SSH in parallel, thanks to Eventlet + Paramiko.
+Siege is a flexible load testing tool. You can configure different payloads and
+frequencies and all kinds of good stuff. So the trick for microarmy is to get
+Siege on a bunch of computers quickly and coordinate the micro instances to work
+in parallel.
 
-After the micro's have finished, the output from each Siege instance is parsed to produce a CSV report.
+The micro instances are controlled via SSH in parallel thanks to Eventlet +
+Paramiko.
+
+The micros report the statistics of their run back to the controlling script,
+which then aggregates this data into a CSV.
+
+After running the test you can shut down all of your micros and quit micro army.
+
+
+## 100 boxes in parallel
+
+I recently tested deployment of 100 ec2 micros.  On average I was able to turn
+2 micros in about 58 seconds.  I was able to deploy 100 micros in 106 seconds.
+
+Eventlet + Paramiko is a powerful pair.
+
 
 ## Example Use:
 
-Here is roughly using micro army looks like.
+This is what it looks like to use microarmy.
 
     $ ./command_center.py 
-    command :: help
+
+    microarmy> help
       help:     This menu.
-      quit:     RIP
-      deploy:   Starts cannon initializations routines
+      deploy:   Deploys N cannons
+      setup:    Runs the setup functions on each host
+      config:   Allows a user to specify existing cannons
       fire:     Asks for a url and then fires the cannons
-    command :: deploy
+      term:     Terminate cannons
+      quit:     Exit command center
+
+    microarmy> deploy
     Deploying cannons...  Done!
-    0|r-2099994d|ec2-55-16-57-191.compute-1.amazonaws.com|ip-10-19-198-177.ec2.internal
-    1|r-2099994d|ec2-58-17-30-12.compute-1.amazonaws.com|ip-10-194-19-74.ec2.internal
-    2|r-2099994d|ec2-53-13-175-166.compute-1.amazonaws.com|ip-10-19-63-20.ec2.internal
-    Giving cannons 30 seconds to boot
-    Loading cannons...    Done!
-    command :: fire
-      target: 'http://webserver' 
-    REPORT ]-------------------
+    Hosts config: [(u'i-4c4ff03c', u'ec2-107-21-75-120.compute-1.amazonaws.com'), (u'i-4e4ff03e', u'ec2-50-42-133-31.compute-1.amazonaws.com')]
+    
+    microarmy> setup
+      Setting up cannons - time: 1316054017.06
+      Loading cannons...  Done!
+      Finished setup - time: 1316054069.83
+
+    microarmy> fire
+      target: http://brubeck.io
+    Results ]------------------
     Num_Trans,Elapsed,Tran_Rate
-    3679,9.54,385.64
-    3635,9.48,383.29
-    3535,9.33,378.89
+    3424,9.15,374.21
+    3424,9.17,373.39
+
+    microarmy> term
+    
+    microarmy> quit
+    
 
 ## Requirements
 
-There are only a few requirements. Everything required for the micro's is installed on the micro's, after all.
+There are only a few requirements. Everything required for the micro's is
+installed on the micro's, after all.
 
     $ pip install eventlet paramiko boto
+    
 
 ## Config
 
-You should create a local_settings.py inside the repo and fill in the following
-keys. Look at `settings.py` for more information.
+You should create a `local_settings.py` inside the repo and fill in the
+following keys. Look at `settings.py` for more information.
 
 * aws_access_key
 * aws_secret_key
@@ -49,3 +82,11 @@ keys. Look at `settings.py` for more information.
 * num_cannons
 * ec2_ssh_key
 
+Here is an example:
+                     
+    aws_access_key = 'ABCDEFGHIJKLMNOPQRST'
+    aws_secret_key = 'abcdefghij/KLMNOPQRSTUVWXY/zabcdefghijkl'
+    security_groups = ['MicroArmy'] # must support incoming SSH + outgoing HTTP
+    key_pair_name = 'micros'
+    ec2_ssh_key = '/Users/jd/.ec2/micros.pem'
+    num_cannons = 2
