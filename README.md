@@ -20,10 +20,11 @@ After running the test you can shut down all of your micros and quit micro army.
 
 ## 100 boxes in parallel
 
-I recently tested deployment of 100 ec2 micros.  On average I was able to turn
-2 micros in about 58 seconds.  I was able to deploy 100 micros in 106 seconds.
+I recently tested deployment of 100 ec2 micros.  On average I found I was able
+to turn configure 2 micros in about 58 seconds.  I was able to configure 100
+micros in parallel in 106 seconds.
 
-Eventlet + Paramiko is a powerful pair.
+Eventlet + Paramiko rocks.
 
 
 ## Example Use:
