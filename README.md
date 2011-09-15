@@ -64,8 +64,8 @@ This is what it looks like to use microarmy.
 
 ## Requirements
 
-There are only a few requirements. Everything required for the micro's is
-installed on the micro's, after all.
+There are only a few requirements. Everything required for the micros is
+installed on the micros, after all.
 
     $ pip install eventlet paramiko boto
     
