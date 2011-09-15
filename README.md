@@ -21,10 +21,9 @@ After running the test you can shut down all of your micros and quit micro army.
 ## 100 boxes in parallel
 
 I recently tested deployment of 100 ec2 micros.  On average I found I was able
-to turn configure 2 micros in about 58 seconds.  I was able to configure 100
-micros in parallel in 106 seconds.
-
-Eventlet + Paramiko rocks.
+to turn configure 2 micros in about 58 seconds.  I tried configuring 100 micros
+in parallel and found this only took 106 seconds.  Slightly more, but negligibly
+so.
 
 
 ## Example Use:
