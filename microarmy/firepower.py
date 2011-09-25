@@ -71,6 +71,12 @@ def terminate_cannons(host_ids):
     ec2_conn = boto.connect_ec2(aws_access_key, aws_secret_key)
     ec2_conn.terminate_instances(host_ids)
 
+def reboot_cannons(host_ids):
+    """
+    """
+    ec2_conn = boto.connect_ec2(aws_access_key, aws_secret_key)
+    ec2_conn.reboot_instances(host_ids)
+
 def _setup_a_cannon(hostname):
     """Connects to the hostname and installs all the tools required for the
     load test.
@@ -107,7 +113,7 @@ def setup_cannons(hostnames):
 def fire_cannon(cannon_host, target):
     """Handles the details of telling a host to fire"""
     ssh_conn = ssh_connect(cannon_host)
-    remote_command = 'siege -c200 -t10s %s' % (target)
+    remote_command = 'siege -c300 -t10s %s' % (target)
     # Siege writes stats to stderr
     response = exec_command(ssh_conn, remote_command, return_stderr=True)
     return response
