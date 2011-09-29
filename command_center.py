@@ -39,20 +39,21 @@ while True:
     try:
         command = raw_input('\nmicroarmy> ')
     except EOFError:
-        print '  bye'
+        print 'bye'
         sys.exit(0)
 
     ### Help
     if command == "help":
-        print '  help:     This menu.'
-        print '  deploy:   Deploys N cannons'
-        print '  setup:    Runs the setup functions on each host'
-        print '  config:   Allows a user to specify existing cannons'
+        print '  help:         This menu.'
+        print '  status:       Get info about current cannons'
+        print '  deploy:       Deploys N cannons'
+        print '  setup:        Runs the setup functions on each host'
+        print '  config:       Allows a user to specify existing cannons'
         print '  config_siege: Create siege config from specified dictionary'
-        print '  fire:     Asks for a url and then fires the cannons'
-        print '  mfire:    Runs `fire` multiple times and aggregates totals'
-        print '  term:     Terminate cannons'
-        print '  quit:     Exit command center'
+        print '  fire:         Asks for a url and then fires the cannons'
+        print '  mfire:        Runs `fire` multiple times and aggregates totals'
+        print '  term:         Terminate cannons'
+        print '  quit:         Exit command center'
 
     ### Quit
     elif command == "term":
@@ -61,6 +62,9 @@ while True:
             continue
 
         terminate_cannons([h[0] for h in _cannon_infos])
+        _cannon_infos = None
+        _cannon_hosts = None
+        _cannons_deployed = False
 
     ### Exit
     elif command == "quit":
@@ -85,6 +89,15 @@ while True:
         print '  Sending reboot message to cannons'
         reboot_cannons([h[0] for h in _cannon_infos])
         _cannons_deployed = True
+
+    ### Status
+    elif command == "status":
+        if not _cannon_infos:
+            print '  No cannons defined, try "config" or "deploy"'
+            continue
+        for host in _cannon_infos:
+            iid, ihost = [h for h in host]
+            print '  Cannon: %s:%s' %(iid, ihost)
 
     ### Config
     elif command == "config":
