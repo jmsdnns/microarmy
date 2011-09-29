@@ -1,4 +1,4 @@
-#!/usr/bin/env python -u
+#!/usr/bin/env python
 
 
 """The command center is where assault coordination takes place. A typical use
@@ -20,6 +20,7 @@ patcher.monkey_patch(all=True)
 import boto
 import time
 import datetime
+import sys
 
 from microarmy.firepower import (init_cannons,
                                  terminate_cannons,
@@ -33,10 +34,13 @@ _cannons_deployed = False
 _cannon_hosts = None
 _cannon_infos = None
 
-
 ### Main command loop
 while True:
-    command = raw_input('\nmicroarmy> ')
+    try:
+        command = raw_input('\nmicroarmy> ')
+    except EOFError:
+        print '  bye'
+        sys.exit(0)
 
     ### Help
     if command == "help":
@@ -44,6 +48,7 @@ while True:
         print '  deploy:   Deploys N cannons'
         print '  setup:    Runs the setup functions on each host'
         print '  config:   Allows a user to specify existing cannons'
+        print '  config_siege: Create siege config from specified dictionary'
         print '  fire:     Asks for a url and then fires the cannons'
         print '  mfire:    Runs `fire` multiple times and aggregates totals'
         print '  term:     Terminate cannons'
@@ -51,6 +56,10 @@ while True:
 
     ### Quit
     elif command == "term":
+        if not _cannon_infos:
+            print '  No cannons defined, try "config" or "deploy"'
+            continue
+
         terminate_cannons([h[0] for h in _cannon_infos])
 
     ### Exit
@@ -64,6 +73,10 @@ while True:
 
     ### Setup cannons
     elif command == "setup":
+        if not _cannon_infos:
+            print '  No cannons defined, try "config" or "deploy"'
+            continue
+
         print '  Setting up cannons - time: %s' % (time.time())
         _cannon_hosts = [h[1] for h in _cannon_infos]
         status = setup_cannons(_cannon_hosts)
