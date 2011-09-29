@@ -14,6 +14,7 @@ security_groups = None #*
 key_pair_name = None #*
 
 ### path to ssh private key
+### Will resolve ~
 ec2_ssh_key = None #*
 ec2_ssh_username = 'ubuntu' # ami specific
 
