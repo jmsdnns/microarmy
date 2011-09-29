@@ -15,7 +15,7 @@ def ssh_connect(host, port=22):
     transport = paramiko.Transport((host, port))
     
     if os.path.exists(os.path.expanduser(ec2_ssh_key)):
-        rsa_key = paramiko.RSAKey.from_private_key_file(ec2_ssh_key)
+        rsa_key = paramiko.RSAKey.from_private_key_file(os.path.expanduser(ec2_ssh_key))
         transport.connect(username=ec2_ssh_username, pkey=rsa_key)
     else:
         raise TypeError("Incorrect private key path")

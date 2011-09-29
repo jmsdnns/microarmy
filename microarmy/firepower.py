@@ -29,6 +29,7 @@ pool = eventlet.GreenPool()
 ###
 
 CANNON_INIT_SCRIPT = 'build_cannon.sh'
+SIEGE_CONFIG = 'siegerc'
 
 def init_cannons():
     """Creates the ec2 instances and returns a list of publicly accessible
@@ -97,7 +98,17 @@ def _setup_a_cannon(hostname):
     # execute the setup script (expect this call to take a while)
     response = exec_command(ssh_conn, 'sudo ./%s' % CANNON_INIT_SCRIPT)
     return (hostname, response)    
-    
+
+def _setup_siege_config(hostname):
+    """Connects to the hostname and configures siege
+
+    Returns a boolean for successful setup.
+    """
+    ssh_conn = ssh_connect(hostname)
+
+    script_path = env_scripts_dir + '/' + SIEGE_CONFIG
+    put_file(ssh_conn, script_path, '.siegerc')
+
 def setup_cannons(hostnames):
     """Launches a coroutine to configure each host and waits for them to
     complete before compiling a list of responses
@@ -106,6 +117,16 @@ def setup_cannons(hostnames):
     pile = eventlet.GreenPile(pool)
     for h in hostnames:
         pile.spawn(_setup_a_cannon, h)
+    responses = list(pile)
+    print 'Done!'
+    return responses
+
+def setup_siege(hostnames):
+    """Launches a coroutine to write a siege config based on user input."""
+    print '  Configuring siege... ',
+    pile = eventlet.GreenPile(pool)
+    for h in hostnames:
+        pile.spawn(_setup_siege_config, h)
     responses = list(pile)
     print 'Done!'
     return responses
@@ -137,12 +158,12 @@ def parse_responses(responses):
         'elapsed': [],
         'tran_rate': [],
     }
-    
+
     for response in responses:
-        num_trans = response[5].split('\t')[2].strip()[:-5]
-        elapsed = response[7].split('\t')[2].strip()[:-5]
-        tran_rate = response[10].split('\t')[1].strip()[:-10]
-        
+        num_trans = response[4].split('\t')[2].strip()[:-5]
+        elapsed = response[6].split('\t')[2].strip()[:-5]
+        tran_rate = response[9].split('\t')[1].strip()[:-10]
+
         aggregate_dict['num_trans'].append(num_trans)
         aggregate_dict['elapsed'].append(elapsed)
         aggregate_dict['tran_rate'].append(tran_rate)

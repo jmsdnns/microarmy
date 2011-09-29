@@ -26,13 +26,40 @@ from microarmy.firepower import (init_cannons,
                                  terminate_cannons,
                                  reboot_cannons,
                                  setup_cannons,
-                                 slam_host)
+                                 slam_host,
+                                 setup_siege)
 
+
+try:
+    from settings import siege_config
+except ImportError:
+    print 'No siege config detected, continuting...'
 
 ### Environment info
 _cannons_deployed = False
 _cannon_hosts = None
 _cannon_infos = None
+
+def _write_siege_config(siegerc):
+
+    file_data = None
+    return_status = None
+
+    for key, value in siegerc.iteritems():
+        if file_data:
+            file_data += "%s = %s\n" %(key, value)
+        else:
+            file_data = "%s = %s\n" %(key, value)
+
+    try:
+        siegerc_file = open('./env_scripts/siegerc', 'w')
+        siegerc_file.write(file_data)
+        siegerc_file.close()
+        return_status = True
+    except IOError:
+        return_status = False
+
+    return return_status
 
 ### Main command loop
 while True:
@@ -84,11 +111,36 @@ while True:
         print '  Setting up cannons - time: %s' % (time.time())
         _cannon_hosts = [h[1] for h in _cannon_infos]
         status = setup_cannons(_cannon_hosts)
+
+        if siege_config:
+            if _write_siege_config(siege_config):
+                print '  Siege config written, deploying to cannons'
+                setup_siege(_cannon_hosts)
+            else:
+                print '  Error writing new siege config'
+
         print '  Finished setup - time: %s' % (time.time())
 
         print '  Sending reboot message to cannons'
         reboot_cannons([h[0] for h in _cannon_infos])
         _cannons_deployed = True
+
+    ### Siege config
+    elif command == "config_siege":
+        if _cannons_deployed:
+            if siege_config:
+                print '  Siege config detected in settings and will be automatically deployed with "setup"'
+                answer = raw_input('  Continue? (y/n)')
+                if answer == 'n':
+                   continue
+
+            siegerc = raw_input('  Enter siege config data: ')
+            if _write_siege_config(eval(siegerc)):
+                print '  Siege config written, deploying to cannons'
+                setup_siege(_cannon_hosts)
+                siege_config = eval(siegerc)
+            else:
+                print '  Error writing new siege config'
 
     ### Status
     elif command == "status":
@@ -98,6 +150,9 @@ while True:
         for host in _cannon_infos:
             iid, ihost = [h for h in host]
             print '  Cannon: %s:%s' %(iid, ihost)
+
+        print '\n  Last written siege config: '
+        print '  %s' % siege_config
 
     ### Config
     elif command == "config":
@@ -117,7 +172,7 @@ while True:
             print 'Num_Trans,Elapsed,Tran_Rate'
             total_trans = 0
             for idx in xrange(len(report['num_trans'])):
-                total_trans = total_trans + report['num_trans'][idx]
+                total_trans = total_trans + int(report['num_trans'][idx])
                 print '%s,%s,%s' % (report['num_trans'][idx],
                                     report['elapsed'][idx],
                                     report['tran_rate'][idx])
