@@ -13,16 +13,14 @@ Access to the cannon's is done via SSH inside eventlet greenpiles.
 EC2 console: https://console.aws.amazon.com/ec2/
 """
 
-from microarmy.commands import CommandRunner
+import cmd
+from microarmy.commands import CommandCenter
 import sys
 
-commands = CommandRunner()
-
-while True:
+if __name__ == '__main__':
     try:
-        command = raw_input('\nmicroarmy> ')
-        commands.dispatch_command(command)
-    except (EOFError, KeyboardInterrupt):
-        print 'bye'
-        sys.exit(0)
+        CommandCenter().cmdloop()
+    except KeyboardInterrupt:
+       print 'bye'
+       sys.exit(0)
 

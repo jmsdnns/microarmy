@@ -11,6 +11,7 @@ import boto
 import time
 import datetime
 import sys
+import cmd
 
 from microarmy.firepower import (init_cannons,
                                  terminate_cannons,
@@ -23,39 +24,28 @@ from microarmy.firepower import (init_cannons,
                                  destroy_deployed_cannons)
 
 try:
-    from settings import siege_config
+    from settings import siege_config as _siege_config
 except ImportError:
     print 'No siege config detected, continuting...'
-    siege_config = None
+    _siege_config = None
 
 try:
-    from settings import siege_urls
+    from settings import siege_urls as _siege_urls
 except ImportError:
     print 'No siege urls detected, continuting...'
-    siege_urls = None
+    _siege_urls = None
 
 
-class CommandRunner(object):
-    """Command runner and commands."""
+class Commands(object):
+    """Commands and helpers for command center."""
 
     def __init__(self):
         self._cannons_deployed = False
         self._cannon_hosts = None
         self._cannon_infos = None
         self._bypass_urls = False
-        self._siege_urls = siege_urls
-        self._siege_config = siege_config
-
-    def dispatch_command(self, command):
-        """Try to map incoming command to local method"""
-
-        if hasattr(self, '_' + command):
-            return_command = getattr(self, '_' + command)
-            return_command()
-        else:
-            print
-            print '  Cannot find command "%s"' % command
-            self._help()
+        self._siege_urls = _siege_urls
+        self._siege_config = _siege_config
 
     def _write_siege_config(self, siegerc):
         """Write siege config to local disk before deploying"""
@@ -101,58 +91,37 @@ class CommandRunner(object):
 
         return return_status
 
-    def _help(self):
-        """Print out help commands"""
-
-        print
-        print '  help:         This menu.'
-        print '  status:       Get info about current cannons'
-        print '  deploy:       Deploys N cannons'
-        print '  setup:        Runs the setup functions on each host'
-        print '  config:       Allows a user to specify existing cannons'
-        print '  find_cannons: Find all cannons deployed for microarmy'
-        print '  cleanup:      Find all cannons we have deployed, destroy them all'
-        print '  config_siege: Create siege config from specified dictionary'
-        print '  siege_urls:   Specify list of URLS to test against'
-        print '  single_url:   Only hit one url when firing off your next test'
-        print '  all_urls:     Revert to using configured urls (turns off single_url)'
-        print '  fire:         Asks for a url and then fires the cannons'
-        print '  mfire:        Runs `fire` multiple times and aggregates totals'
-        print '  term:         Terminate cannons'
-        print '  quit:         Exit command center'
-
-    def _deploy(self):
-        """Create new EC2 instances"""
-
+    def do_deploy(self, line):
+        """Deploy N cannons"""
+        start_time = time.time()
         self._cannon_infos = init_cannons()
+        print 'Time: %s' %(time.time()-start_time)
 
-    def _term(self):
-        """Destroy EC2 instances"""
-
+    def do_term(self, line):
+        """Terminate cannons"""
         if not self._cannon_infos:
-            print '  No cannons defined, try "config" or "deploy"'
+            print 'No cannons defined, try "config" or "deploy"'
             return
 
         terminate_cannons([h[0] for h in self._cannon_infos])
         self._cannon_infos = None
         self._cannon_hosts = None
         self._cannons_deployed = False
-        print '  Deployed cannons destroyed'
+        print 'Deployed cannons destroyed'
 
-    def _quit(self):
-        """Leave the shell"""
-
-        import sys
+    def do_quit(self, line):
+        """Exit command center"""
+        print 'bye'
         sys.exit(0)
 
-    def _setup(self):
+    def do_setup(self, line):
         """Setup system, deploy configs and urls"""
-
         if not self._cannon_infos:
             print '  No cannons defined, try "config" or "deploy"'
             return
 
-        print '  Setting up cannons - time: %s' % (time.time())
+        start_time = time.time()
+        print '  Setting up cannons'
         self._cannon_hosts = [h[1] for h in self._cannon_infos]
         status = setup_cannons(self._cannon_hosts)
 
@@ -163,27 +132,26 @@ class CommandRunner(object):
             else:
                 print '  Error writing new siege config'
 
-        if siege_urls:
-            if self._write_siege_urls(siege_urls):
+        if self._siege_urls:
+            if self._write_siege_urls(self._siege_urls):
                 print '  Siege urls written, deploying to cannons'
                 setup_siege_urls(self._cannon_hosts)
             else:
                 print '  Error writing urls'
 
-        print '  Finished setup - time: %s' % (time.time())
+        print '  Finished setup - time: %s' % (time.time()-start_time)
 
         print '  Sending reboot message to cannons'
         reboot_cannons([h[0] for h in self._cannon_infos])
         self._cannons_deployed = True
 
-    def _config_siege(self):
+    def do_config_siege(self, line):
         """Create siege config, deploy it to cannons"""
-
         if self._cannons_deployed:
             if self._siege_config:
                 print '  Siege config detected in settings and will be automatically deployed with "setup"'
                 answer = raw_input('  Continue? (y/n) ')
-                if answer == 'n':
+                if answer.lower() == 'n':
                    return
 
             siegerc = raw_input('  Enter siege config data: ')
@@ -196,9 +164,8 @@ class CommandRunner(object):
         else:
             print 'ERROR: Cannons not deployed yet'
 
-    def _siege_urls(self):
+    def do_siege_urls(self, line):
         """Create siege urls file, deploy it to cannons"""
-
         if self._cannons_deployed:
             if self._siege_urls:
                 print '  Urls detected in settings and will be automatically deployed with "setup"'
@@ -216,21 +183,18 @@ class CommandRunner(object):
         else:
             print 'ERROR: Cannons not deployed yet'
 
-    def _single_url(self):
+    def do_single_url(self, line):
         """Bypass configured urls, allowing to specify one dynamically"""
-
         self._bypass_urls = True
         print '  Bypassing configured urls'
 
-    def _all_urls(self):
-        """Revert bypassing configured urls"""
-
+    def do_all_urls(self, line):
+        """Disable 'single_url' mode"""
         self._bypass_urls = False
         print '  Using configured urls'
 
-    def _status(self):
-        """Get current status"""
-
+    def do_status(self, line):
+        """Get information about current cannons, siege configs and urls"""
         if not self._cannon_infos:
             print '  No cannons defined, try "config" or "deploy"'
             return
@@ -244,34 +208,40 @@ class CommandRunner(object):
         print '\n  Last written urls: '
         print '  %s' % self._siege_urls
 
-    def _config(self):
-        """Dynamically configure host data"""
-
-        cannon_data = raw_input('  Enter host data: ')
+    def do_config(self, line, cannon_data=None):
+        """Allows a user to specify existing cannons"""
+        if not cannon_data:
+            cannon_data = raw_input('  Enter host data: ')
         if cannon_data != '':
-            self._cannon_infos = eval(cannon_data)
+            if isinstance(cannon_data, str):
+                self._cannon_infos = eval(cannon_data)
+            else:
+                self._cannon_infos = cannon_data
             self._cannon_hosts = [h[1] for h in self._cannon_infos]
             self._cannons_deployed = True
         else:
-            print '  No host data specified'
+            print 'ERROR: No host data specified'
         return
 
-    def _find_cannons(self):
-        """Find all cannons deployed for our purposes"""
+    def do_find_cannons(self, line):
+        """Find all cannons deployed for microarmy"""
         hosts = find_deployed_cannons()
         if hosts:
-            print '  Deployed cannons:', hosts
+            print 'Deployed cannons:', hosts
+            answer = raw_input('  Would you like to import these cannons now? (y/n) ')
+            if answer.lower() == 'n':
+                return
+            self.do_config(None, hosts)
         else:
-            print '  No cannons found'
+            print 'No cannons found'
 
-    def _cleanup(self):
-        """Find all cannons deployed for us, wipe those bitches out"""
+    def do_cleanup(self, line):
+        """Find all cannons we have deployed, destroy them all"""
         destroy_deployed_cannons()
         print '  Deployed cannons destroyed'
 
-    def _fire(self):
-        """FIRE ZE CANNONS"""
-
+    def do_fire(self, line):
+        """Fires the cannons, asks for URL if none are defined in settings"""
         if self._cannons_deployed:
             if self._siege_urls and not self._bypass_urls:
                 report = slam_host(self._cannon_hosts, None)
@@ -300,13 +270,15 @@ class CommandRunner(object):
         else:
             print 'ERROR: Cannons not deployed yet'
 
-    def _mfire(self):
-        """FIRE ZE CANNONS LOTS OF TIEMS"""
-
+    def do_mfire(self, line):
+        """Runs `fire` multiple times and aggregates totals"""
         if self._cannons_deployed:
             ### Get test arguments from user
             try:
-                target =  raw_input('   target: ')
+
+                if not self._siege_urls and self._bypass_urls:
+                    target =  raw_input('   target: ')
+
                 n_times = raw_input('  n times: ')
                 n_times = int(n_times)
             except:
@@ -336,3 +308,28 @@ class CommandRunner(object):
             print 'Total:', total_transactions
         else:
             print 'ERROR: Cannons not deployed yet'
+
+
+class CommandCenter(cmd.Cmd, Commands):
+    """Simple command center shell.
+    "Mixes in" commands in Commands for dispatch.
+    Should probably actually write a mixin.
+    """
+
+    prompt = 'microarmy> '
+
+    def __init__(self):
+        Commands.__init__(self)
+        super(CommandCenter, self).__init__()
+
+    def default(self, line):
+        print
+        print 'Cannot find command: "%s"' % line
+        self.do_help(None)
+
+    def emptyline(self):
+        pass
+
+    def do_EOF(self, line):
+        print 'bye'
+        return True
