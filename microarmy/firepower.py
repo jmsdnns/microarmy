@@ -24,6 +24,14 @@ from settings import (
 
 pool = eventlet.GreenPool()
 
+
+class UnparsableData(Exception):
+
+    def __init__(self, value):
+        self.data = value
+    def __str__(self):
+        return repr(self.data)
+
 ###
 ### Cannon functions
 ###
@@ -153,11 +161,15 @@ def setup_siege_urls(hostnames):
 def fire_cannon(cannon_host, target):
     """Handles the details of telling a host to fire"""
     ssh_conn = ssh_connect(cannon_host)
-    remote_command = 'if [ -f ~/urls.txt ]; then siege -c300 -t10s -f ~/urls.txt; else siege -c300 -t10s %s; fi' % (target)
+
+    if target:
+        remote_command = 'siege -c300 -t10s %s' % (target)
+    else:
+        remote_command = 'siege -c300 -t10s -f ~/urls.txt'
+
     # Siege writes stats to stderr
     response = exec_command(ssh_conn, remote_command, return_stderr=True)
     return response
-    
 
 def slam_host(cannon_hosts, target):
     """Coordinates `cannon_hosts` to use the specified siege coordates on
@@ -167,7 +179,12 @@ def slam_host(cannon_hosts, target):
     for h in cannon_hosts:
         pile.spawn(fire_cannon, h, target)
     responses = list(pile)
-    report = parse_responses(responses)
+
+    try:
+        report = parse_responses(responses)
+    except UnparsableData, e:
+        return "Unable to parse data properly: %s" % e
+
     return report
 
 def parse_responses(responses):
@@ -179,12 +196,15 @@ def parse_responses(responses):
     }
 
     for response in responses:
-        num_trans = response[4].split('\t')[2].strip()[:-5]
-        elapsed = response[6].split('\t')[2].strip()[:-5]
-        tran_rate = response[9].split('\t')[1].strip()[:-10]
+        try:
+            num_trans = response[4].split('\t')[2].strip()[:-5]
+            elapsed = response[6].split('\t')[2].strip()[:-5]
+            tran_rate = response[9].split('\t')[1].strip()[:-10]
+        except IndexError:
+            raise UnparsableData(response)
 
         aggregate_dict['num_trans'].append(num_trans)
         aggregate_dict['elapsed'].append(elapsed)
         aggregate_dict['tran_rate'].append(tran_rate)
-        
+
     return aggregate_dict
