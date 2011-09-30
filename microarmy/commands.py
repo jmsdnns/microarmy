@@ -18,7 +18,9 @@ from microarmy.firepower import (init_cannons,
                                  setup_cannons,
                                  slam_host,
                                  setup_siege,
-                                 setup_siege_urls)
+                                 setup_siege_urls,
+                                 find_deployed_cannons,
+                                 destroy_deployed_cannons)
 
 try:
     from settings import siege_config
@@ -108,6 +110,8 @@ class CommandRunner(object):
         print '  deploy:       Deploys N cannons'
         print '  setup:        Runs the setup functions on each host'
         print '  config:       Allows a user to specify existing cannons'
+        print '  find_cannons: Find all cannons deployed for microarmy'
+        print '  cleanup:      Find all cannons we have deployed, destroy them all'
         print '  config_siege: Create siege config from specified dictionary'
         print '  siege_urls:   Specify list of URLS to test against'
         print '  single_url:   Only hit one url when firing off your next test'
@@ -133,6 +137,7 @@ class CommandRunner(object):
         self._cannon_infos = None
         self._cannon_hosts = None
         self._cannons_deployed = False
+        print '  Deployed cannons destroyed'
 
     def _quit(self):
         """Leave the shell"""
@@ -250,6 +255,19 @@ class CommandRunner(object):
         else:
             print '  No host data specified'
         return
+
+    def _find_cannons(self):
+        """Find all cannons deployed for our purposes"""
+        hosts = find_deployed_cannons()
+        if hosts:
+            print '  Deployed cannons:', hosts
+        else:
+            print '  No cannons found'
+
+    def _cleanup(self):
+        """Find all cannons deployed for us, wipe those bitches out"""
+        destroy_deployed_cannons()
+        print '  Deployed cannons destroyed'
 
     def _fire(self):
         """FIRE ZE CANNONS"""

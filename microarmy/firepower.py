@@ -52,7 +52,7 @@ def init_cannons():
 
     ### Will need unbuffered output
     print 'Deploying cannons... ',
-    
+
     ### Create n instances
     r = image.run(min_count=num_cannons,
                   max_count=num_cannons,
@@ -71,9 +71,33 @@ def init_cannons():
             running = True
             print 'Done!'
             for i in r.instances:
+                if not i.tags:
+                    ec2_conn.create_tags([i.id], {'microarmy': '1'})
                 hosts.append((i.id, i.public_dns_name))
     print 'Hosts config:', hosts
     return hosts
+
+def find_deployed_cannons():
+    """Find all cannons deployed for our purposes"""
+    ec2_conn = boto.connect_ec2(aws_access_key, aws_secret_key)
+
+    reservations = ec2_conn.get_all_instances()
+    instances = [i for r in reservations for i in r.instances]
+
+    hosts = []
+    for i in instances:
+        if not i.tags:
+            continue
+        else:
+            if 'microarmy' in i.tags and i.state == 'running':
+                hosts.append((i.id, i.public_dns_name))
+
+    return hosts
+
+def destroy_deployed_cannons():
+    """Find and destroy all our deployed cannons"""
+    hosts = find_deployed_cannons()
+    terminate_cannons([h[0] for h in hosts])
 
 def terminate_cannons(host_ids):
     """
