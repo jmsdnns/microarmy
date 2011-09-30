@@ -47,6 +47,7 @@ except ImportError:
 _cannons_deployed = False
 _cannon_hosts = None
 _cannon_infos = None
+_single_url = False
 
 def _write_siege_config(siegerc):
 
@@ -94,7 +95,7 @@ def _write_siege_urls(urls):
 while True:
     try:
         command = raw_input('\nmicroarmy> ')
-    except EOFError, KeyboardInterrupt:
+    except (EOFError, KeyboardInterrupt):
         print 'bye'
         sys.exit(0)
 
@@ -107,6 +108,8 @@ while True:
         print '  config:       Allows a user to specify existing cannons'
         print '  config_siege: Create siege config from specified dictionary'
         print '  siege_urls:   Specify list of URLS to test against'
+        print '  single_url:   Only hit one url when firing off your next test'
+        print '  all_urls:     Revert to using configured urls (turns off single_url)'
         print '  fire:         Asks for a url and then fires the cannons'
         print '  mfire:        Runs `fire` multiple times and aggregates totals'
         print '  term:         Terminate cannons'
@@ -199,6 +202,14 @@ while True:
         else:
             print 'ERROR: Cannons not deployed yet'
 
+    elif command == "single_url":
+        _single_url = True
+        print '  Bypassing configured urls'
+
+    elif command == "all_urls":
+        _single_url = False
+        print '  Using configured urls'
+
     ### Status
     elif command == "status":
         if not _cannon_infos:
@@ -221,7 +232,7 @@ while True:
     ### Fire
     elif command == "fire":
         if _cannons_deployed:
-            if siege_urls:
+            if siege_urls and not _single_url:
                 report = slam_host(_cannon_hosts, None)
             else:
                 target = raw_input('  target: ')

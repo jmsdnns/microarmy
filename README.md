@@ -33,13 +33,17 @@ This is what it looks like to use microarmy.
     $ ./command_center.py 
 
     microarmy> help
-      help:     This menu.
-      deploy:   Deploys N cannons
-      setup:    Runs the setup functions on each host
-      config:   Allows a user to specify existing cannons
-      fire:     Asks for a url and then fires the cannons
-      term:     Terminate cannons
-      quit:     Exit command center
+      help:         This menu.
+      status:       Get info about current cannons
+      deploy:       Deploys N cannons
+      setup:        Runs the setup functions on each host
+      config:       Allows a user to specify existing cannons
+      config_siege: Create siege config from specified dictionary
+      siege_urls:   Specify list of URLS to test against
+      fire:         Asks for a url and then fires the cannons
+      mfire:        Runs `fire` multiple times and aggregates totals
+      term:         Terminate cannons
+      quit:         Exit command center
 
     microarmy> deploy
     Deploying cannons...  Done!
@@ -60,7 +64,53 @@ This is what it looks like to use microarmy.
     microarmy> term
     
     microarmy> quit
-    
+
+## Configure siege dynamically
+
+Typically you'd want to configure the siege config in your `local_settings.py`, but in case you want to configure it dynamically...
+
+    microarmy> config_siege
+      Siege config detected in settings and will be automatically deployed with "setup"
+      Continue? (y/n) y
+      Enter siege config data: {'connection': 'close', 'concurrency': 5, 'benchmark': 'true'}
+      Siege config written, deploying to cannons
+      Configuring siege...  Done!
+
+This will write a ~/.siegerc config on the cannon machines like so:
+
+    connection = close
+    benchmark = true
+    concurrency = 5
+
+## Configure siege urls dynamically
+
+Typically you'd want to configure the urls for siege to hit in your `local_settings.py, but in case you want to configure them dynamically...
+
+    microarmy> siege_urls
+      Urls detected in settings and will be automatically deployed with "setup"
+      Continue? (y/n) y
+      Enter urls: ['http://localhost/', 'http://localhost/test/']
+      Urls written, deploying to cannons
+      Configuring urls...  Done!
+
+This will write ~/urls.txt on the cannon machines like so:
+
+    http://localhost/
+    http://localhost/test/
+
+## Hit a single url target instead of the configured list
+
+You might want to hit one single url when firing off a test, to do so, don't configure any urls in your `local_settings.py` or...
+
+    microarmy> single_url
+      Bypassing configured urls
+    microarmy> fire
+      target: http://localhost/test_one/
+
+To switch back to your configured urls...
+
+    microarmy> all_urls
+      Using configured urls
 
 ## Requirements
 
