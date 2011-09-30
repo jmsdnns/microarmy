@@ -139,9 +139,9 @@ To switch back to your configured urls...
 
 Sometimes you might forget that you deployed a whole mess of cannons already. In that case, run the following...
 
-   microarmy> find_cannons
-   Deployed cannons: [(u'i-1a6d127a', u'ec2-50-17-80-241.compute-1.amazonaws.com'), (u'i-1c6d127c', u'ec2-184-73-117-126.compute-1.amazonaws.com'), (u'i-e06d1280', u'ec2-50-16-106-209.compute-1.amazonaws.com'), (u'i-e26d1282', u'ec2-50-17-26-28.compute-1.amazonaws.com'), (u'i-e46d1284', u'ec2-50-16-169-72.compute-1.amazonaws.com'), (u'i-e66d1286', u'ec2-184-73-114-245.compute-1.amazonaws.com'), (u'i-e86d1288', u'ec2-184-72-92-234.compute-1.amazonaws.com'), (u'i-ea6d128a', u'ec2-184-73-148-253.compute-1.amazonaws.com'), (u'i-ec6d128c', u'ec2-107-20-112-149.compute-1.amazonaws.com'), (u'i-ee6d128e', u'ec2-50-16-24-210.compute-1.amazonaws.com'), (u'i-f06d1290', u'ec2-204-236-251-120.compute-1.amazonaws.com'), (u'i-f46d1294', u'ec2-50-19-24-63.compute-1.amazonaws.com'), (u'i-f66d1296', u'ec2-107-20-95-203.compute-1.amazonaws.com'), (u'i-f86d1298', u'ec2-174-129-76-108.compute-1.amazonaws.com'), (u'i-fa6d129a', u'ec2-50-16-64-128.compute-1.amazonaws.com')]
-   Would you like to import these cannons now? (y/n) y
+    microarmy> find_cannons
+    Deployed cannons: [(u'i-1a6d127a', u'ec2-50-17-80-241.compute-1.amazonaws.com'), (u'i-1c6d127c', u'ec2-184-73-117-126.compute-1.amazonaws.com'), (u'i-e06d1280', u'ec2-50-16-106-209.compute-1.amazonaws.com'), (u'i-e26d1282', u'ec2-50-17-26-28.compute-1.amazonaws.com'), (u'i-e46d1284', u'ec2-50-16-169-72.compute-1.amazonaws.com'), (u'i-e66d1286', u'ec2-184-73-114-245.compute-1.amazonaws.com'), (u'i-e86d1288', u'ec2-184-72-92-234.compute-1.amazonaws.com'), (u'i-ea6d128a', u'ec2-184-73-148-253.compute-1.amazonaws.com'), (u'i-ec6d128c', u'ec2-107-20-112-149.compute-1.amazonaws.com'), (u'i-ee6d128e', u'ec2-50-16-24-210.compute-1.amazonaws.com'), (u'i-f06d1290', u'ec2-204-236-251-120.compute-1.amazonaws.com'), (u'i-f46d1294', u'ec2-50-19-24-63.compute-1.amazonaws.com'), (u'i-f66d1296', u'ec2-107-20-95-203.compute-1.amazonaws.com'), (u'i-f86d1298', u'ec2-174-129-76-108.compute-1.amazonaws.com'), (u'i-fa6d129a', u'ec2-50-16-64-128.compute-1.amazonaws.com')]
+    Would you like to import these cannons now? (y/n) y
 
 Now you have a whole new mess of cannons to fire away. To be safe, you may want to run `setup` again.
 
