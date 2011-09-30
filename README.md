@@ -140,3 +140,13 @@ Here is an example:
     key_pair_name = 'micros'
     ec2_ssh_key = '/Users/jd/.ec2/micros.pem'
     num_cannons = 2
+    siege_config = {
+        'connection': 'close',
+        'concurrency': 5,
+        'internet': 'true'
+    }
+
+    siege_urls = [
+       'http://localhost/',
+       'http://localhost/test'
+    ]
