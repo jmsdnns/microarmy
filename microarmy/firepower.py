@@ -30,6 +30,7 @@ pool = eventlet.GreenPool()
 
 CANNON_INIT_SCRIPT = 'build_cannon.sh'
 SIEGE_CONFIG = 'siegerc'
+URLS = 'urls.txt'
 
 def init_cannons():
     """Creates the ec2 instances and returns a list of publicly accessible
@@ -102,12 +103,20 @@ def _setup_a_cannon(hostname):
 def _setup_siege_config(hostname):
     """Connects to the hostname and configures siege
 
-    Returns a boolean for successful setup.
     """
     ssh_conn = ssh_connect(hostname)
 
     script_path = env_scripts_dir + '/' + SIEGE_CONFIG
     put_file(ssh_conn, script_path, '.siegerc')
+
+def _setup_siege_urls(hostname):
+    """Connects to the hostname and configures siege
+
+    """
+    ssh_conn = ssh_connect(hostname)
+
+    script_path = env_scripts_dir + '/' + URLS
+    put_file(ssh_conn, script_path, 'urls.txt')
 
 def setup_cannons(hostnames):
     """Launches a coroutine to configure each host and waits for them to
@@ -131,10 +140,20 @@ def setup_siege(hostnames):
     print 'Done!'
     return responses
 
+def setup_siege_urls(hostnames):
+    """Launches a coroutine to write siege urls based on user input."""
+    print '  Configuring urls... ',
+    pile = eventlet.GreenPile(pool)
+    for h in hostnames:
+        pile.spawn(_setup_siege_urls, h)
+    responses = list(pile)
+    print 'Done!'
+    return responses
+
 def fire_cannon(cannon_host, target):
     """Handles the details of telling a host to fire"""
     ssh_conn = ssh_connect(cannon_host)
-    remote_command = 'siege -c300 -t10s %s' % (target)
+    remote_command = 'if [ -f ~/urls.txt ]; then siege -c300 -t10s -f ~/urls.txt; else siege -c300 -t10s %s; fi' % (target)
     # Siege writes stats to stderr
     response = exec_command(ssh_conn, remote_command, return_stderr=True)
     return response

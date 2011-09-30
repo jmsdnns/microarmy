@@ -27,13 +27,21 @@ from microarmy.firepower import (init_cannons,
                                  reboot_cannons,
                                  setup_cannons,
                                  slam_host,
-                                 setup_siege)
+                                 setup_siege,
+                                 setup_siege_urls)
 
 
 try:
     from settings import siege_config
 except ImportError:
     print 'No siege config detected, continuting...'
+    siege_config = None
+
+try:
+    from settings import siege_urls
+except ImportError:
+    print 'No siege urls detected, continuting...'
+    siege_urls = None
 
 ### Environment info
 _cannons_deployed = False
@@ -61,11 +69,32 @@ def _write_siege_config(siegerc):
 
     return return_status
 
+def _write_siege_urls(urls):
+
+    file_data = None
+    return_status = None
+
+    for url in urls:
+        if file_data:
+            file_data += "%s\n" %(url)
+        else:
+            file_data = "%s\n" %(url)
+
+    try:
+        urls_file = open('./env_scripts/urls.txt', 'w')
+        urls_file.write(file_data)
+        urls_file.close()
+        return_status = True
+    except IOError:
+        return_status = False
+
+    return return_status
+
 ### Main command loop
 while True:
     try:
         command = raw_input('\nmicroarmy> ')
-    except EOFError:
+    except EOFError, KeyboardInterrupt:
         print 'bye'
         sys.exit(0)
 
@@ -77,6 +106,7 @@ while True:
         print '  setup:        Runs the setup functions on each host'
         print '  config:       Allows a user to specify existing cannons'
         print '  config_siege: Create siege config from specified dictionary'
+        print '  siege_urls:   Specify list of URLS to test against'
         print '  fire:         Asks for a url and then fires the cannons'
         print '  mfire:        Runs `fire` multiple times and aggregates totals'
         print '  term:         Terminate cannons'
@@ -119,6 +149,13 @@ while True:
             else:
                 print '  Error writing new siege config'
 
+        if siege_urls:
+            if _write_siege_urls(siege_urls):
+                print '  Siege urls written, deploying to cannons'
+                setup_siege_urls(_cannon_hosts)
+            else:
+                print '  Error writing urls'
+
         print '  Finished setup - time: %s' % (time.time())
 
         print '  Sending reboot message to cannons'
@@ -130,7 +167,7 @@ while True:
         if _cannons_deployed:
             if siege_config:
                 print '  Siege config detected in settings and will be automatically deployed with "setup"'
-                answer = raw_input('  Continue? (y/n)')
+                answer = raw_input('  Continue? (y/n) ')
                 if answer == 'n':
                    continue
 
@@ -141,6 +178,26 @@ while True:
                 siege_config = eval(siegerc)
             else:
                 print '  Error writing new siege config'
+        else:
+            print 'ERROR: Cannons not deployed yet'
+
+    elif command == "siege_urls":
+        if _cannons_deployed:
+            if siege_urls:
+                print '  Urls detected in settings and will be automatically deployed with "setup"'
+                answer = raw_input('  Continue? (y/n) ')
+                if answer == 'n':
+                   continue
+
+            siege_urls = raw_input('  Enter urls: ')
+            if _write_siege_urls(eval(siege_urls)):
+                print '  Urls written, deploying to cannons'
+                setup_siege_urls(_cannon_hosts)
+                siege_urls = eval(siege_urls)
+            else:
+                print '  Error writing new urls'
+        else:
+            print 'ERROR: Cannons not deployed yet'
 
     ### Status
     elif command == "status":
@@ -164,8 +221,11 @@ while True:
     ### Fire
     elif command == "fire":
         if _cannons_deployed:
-            target = raw_input('  target: ')
-            report = slam_host(_cannon_hosts, target)
+            if siege_urls:
+                report = slam_host(_cannon_hosts, None)
+            else:
+                target = raw_input('  target: ')
+                report = slam_host(_cannon_hosts, target)
 
             ### Ad-hoc CSV
             print 'Results ]------------------'
