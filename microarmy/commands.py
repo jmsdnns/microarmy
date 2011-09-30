@@ -34,6 +34,7 @@ except ImportError:
 
 
 class CommandRunner(object):
+    """Command runner and commands."""
 
     def __init__(self):
         self._cannons_deployed = False
@@ -44,6 +45,8 @@ class CommandRunner(object):
         self._siege_config = siege_config
 
     def dispatch_command(self, command):
+        """Try to map incoming command to local method"""
+
         if hasattr(self, '_' + command):
             return_command = getattr(self, '_' + command)
             return_command()
@@ -53,6 +56,7 @@ class CommandRunner(object):
             self._help()
 
     def _write_siege_config(self, siegerc):
+        """Write siege config to local disk before deploying"""
 
         file_data = None
         return_status = None
@@ -74,6 +78,7 @@ class CommandRunner(object):
         return return_status
 
     def _write_siege_urls(self, urls):
+        """Write siege urls to local disk before deploying"""
 
         file_data = None
         return_status = None
@@ -95,6 +100,8 @@ class CommandRunner(object):
         return return_status
 
     def _help(self):
+        """Print out help commands"""
+
         print
         print '  help:         This menu.'
         print '  status:       Get info about current cannons'
@@ -111,9 +118,13 @@ class CommandRunner(object):
         print '  quit:         Exit command center'
 
     def _deploy(self):
+        """Create new EC2 instances"""
+
         self._cannon_infos = init_cannons()
 
     def _term(self):
+        """Destroy EC2 instances"""
+
         if not self._cannon_infos:
             print '  No cannons defined, try "config" or "deploy"'
             return
@@ -124,10 +135,14 @@ class CommandRunner(object):
         self._cannons_deployed = False
 
     def _quit(self):
+        """Leave the shell"""
+
         import sys
         sys.exit(0)
 
     def _setup(self):
+        """Setup system, deploy configs and urls"""
+
         if not self._cannon_infos:
             print '  No cannons defined, try "config" or "deploy"'
             return
@@ -157,6 +172,8 @@ class CommandRunner(object):
         self._cannons_deployed = True
 
     def _config_siege(self):
+        """Create siege config, deploy it to cannons"""
+
         if self._cannons_deployed:
             if self._siege_config:
                 print '  Siege config detected in settings and will be automatically deployed with "setup"'
@@ -175,6 +192,8 @@ class CommandRunner(object):
             print 'ERROR: Cannons not deployed yet'
 
     def _siege_urls(self):
+        """Create siege urls file, deploy it to cannons"""
+
         if self._cannons_deployed:
             if self._siege_urls:
                 print '  Urls detected in settings and will be automatically deployed with "setup"'
@@ -193,14 +212,20 @@ class CommandRunner(object):
             print 'ERROR: Cannons not deployed yet'
 
     def _single_url(self):
+        """Bypass configured urls, allowing to specify one dynamically"""
+
         self._bypass_urls = True
         print '  Bypassing configured urls'
 
     def _all_urls(self):
+        """Revert bypassing configured urls"""
+
         self._bypass_urls = False
         print '  Using configured urls'
 
     def _status(self):
+        """Get current status"""
+
         if not self._cannon_infos:
             print '  No cannons defined, try "config" or "deploy"'
             return
@@ -215,6 +240,8 @@ class CommandRunner(object):
         print '  %s' % self._siege_urls
 
     def _config(self):
+        """Dynamically configure host data"""
+
         cannon_data = raw_input('  Enter host data: ')
         if cannon_data != '':
             self._cannon_infos = eval(cannon_data)
@@ -225,6 +252,8 @@ class CommandRunner(object):
         return
 
     def _fire(self):
+        """FIRE ZE CANNONS"""
+
         if self._cannons_deployed:
             if self._siege_urls and not self._bypass_urls:
                 report = slam_host(self._cannon_hosts, None)
@@ -254,6 +283,8 @@ class CommandRunner(object):
             print 'ERROR: Cannons not deployed yet'
 
     def _mfire(self):
+        """FIRE ZE CANNONS LOTS OF TIEMS"""
+
         if self._cannons_deployed:
             ### Get test arguments from user
             try:
@@ -270,6 +301,10 @@ class CommandRunner(object):
             total_transactions = 0
             for run_instance in xrange(n_times):
                 report = slam_host(self._cannon_hosts, target)
+
+                if isinstance(report, str):
+                    print report
+                    return
 
                 ### Ad-hoc CSV
                 sum_num_trans = 0.0
