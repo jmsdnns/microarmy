@@ -33,6 +33,7 @@ This is what it looks like to use microarmy.
     $ ./command_center.py
 
     microarmy> help
+
       help:         This menu.
       status:       Get info about current cannons
       deploy:       Deploys N cannons
@@ -40,6 +41,8 @@ This is what it looks like to use microarmy.
       config:       Allows a user to specify existing cannons
       config_siege: Create siege config from specified dictionary
       siege_urls:   Specify list of URLS to test against
+      single_url:   Only hit one url when firing off your next test
+      all_urls:     Revert to using configured urls (turns off single_url)
       fire:         Asks for a url and then fires the cannons
       mfire:        Runs `fire` multiple times and aggregates totals
       term:         Terminate cannons
@@ -50,9 +53,14 @@ This is what it looks like to use microarmy.
     Hosts config: [(u'i-4c4ff03c', u'ec2-107-21-75-120.compute-1.amazonaws.com'), (u'i-4e4ff03e', u'ec2-50-42-133-31.compute-1.amazonaws.com')]
 
     microarmy> setup
-      Setting up cannons - time: 1316054017.06
+      Setting up cannons - time: 1317352247.23
       Loading cannons...  Done!
-      Finished setup - time: 1316054069.83
+      Siege config written, deploying to cannons
+      Configuring siege...  Done!
+      Siege urls written, deploying to cannons
+      Configuring urls...  Done!
+      Finished setup - time: 1317352305.56
+      Sending reboot message to cannons
 
     microarmy> fire
       target: http://brubeck.io
