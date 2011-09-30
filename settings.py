@@ -31,6 +31,18 @@ instance_type = 't1.micro'
 ### scripts for building environments
 env_scripts_dir = os.path.abspath(os.path.dirname('./env_scripts/'))
 
+### Siege config settings
+# siege_config = {
+#     'connection': 'close',
+#     'internet': 'true
+# }
+
+### Siege urls
+# siege_urls = [
+#     'http://localhost',
+#     'http://localhost/test'
+# ]
+
 try:
     from local_settings import *
 except:
