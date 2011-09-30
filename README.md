@@ -1,6 +1,6 @@
 # Micro Army
 
-This is a tool to quickly turn on some number of AWS micro instances and have 
+This is a tool to quickly turn on some number of AWS micro instances and have
 them slam a webserver simultaneously. The micro's are effectively
 [Siege](http://www.joedog.org/index/siege-home) cannons.
 
@@ -30,7 +30,7 @@ so.
 
 This is what it looks like to use microarmy.
 
-    $ ./command_center.py 
+    $ ./command_center.py
 
     microarmy> help
       help:         This menu.
@@ -48,7 +48,7 @@ This is what it looks like to use microarmy.
     microarmy> deploy
     Deploying cannons...  Done!
     Hosts config: [(u'i-4c4ff03c', u'ec2-107-21-75-120.compute-1.amazonaws.com'), (u'i-4e4ff03e', u'ec2-50-42-133-31.compute-1.amazonaws.com')]
-    
+
     microarmy> setup
       Setting up cannons - time: 1316054017.06
       Loading cannons...  Done!
@@ -62,7 +62,7 @@ This is what it looks like to use microarmy.
     3424,9.17,373.39
 
     microarmy> term
-    
+
     microarmy> quit
 
 ## Configure siege dynamically
@@ -76,7 +76,7 @@ Typically you'd want to configure the siege config in your `local_settings.py`, 
       Siege config written, deploying to cannons
       Configuring siege...  Done!
 
-This will write a ~/.siegerc config on the cannon machines like so:
+This will write a `~/.siegerc config` on the cannon machines like so:
 
     connection = close
     benchmark = true
@@ -84,7 +84,7 @@ This will write a ~/.siegerc config on the cannon machines like so:
 
 ## Configure siege urls dynamically
 
-Typically you'd want to configure the urls for siege to hit in your `local_settings.py, but in case you want to configure them dynamically...
+Typically you'd want to configure the urls for siege to hit in your `local_settings.py`, but in case you want to configure them dynamically...
 
     microarmy> siege_urls
       Urls detected in settings and will be automatically deployed with "setup"
@@ -93,7 +93,7 @@ Typically you'd want to configure the urls for siege to hit in your `local_setti
       Urls written, deploying to cannons
       Configuring urls...  Done!
 
-This will write ~/urls.txt on the cannon machines like so:
+This will write `~/urls.txt` on the cannon machines like so:
 
     http://localhost/
     http://localhost/test/
@@ -118,7 +118,6 @@ There are only a few requirements. Everything required for the micros is
 installed on the micros, after all.
 
     $ pip install eventlet paramiko boto
-    
 
 ## Config
 
@@ -133,7 +132,7 @@ following keys. Look at `settings.py` for more information.
 * ec2_ssh_key
 
 Here is an example:
-                     
+
     aws_access_key = 'ABCDEFGHIJKLMNOPQRST'
     aws_secret_key = 'abcdefghij/KLMNOPQRSTUVWXY/zabcdefghijkl'
     security_groups = ['MicroArmy'] # must support incoming SSH + outgoing HTTP
