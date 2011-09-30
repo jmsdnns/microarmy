@@ -54,12 +54,16 @@ def init_cannons():
     print 'Deploying cannons... ',
 
     ### Create n instances
-    r = image.run(min_count=num_cannons,
-                  max_count=num_cannons,
-                  placement=placement,
-                  security_groups=security_groups,
-                  key_name=key_pair_name,
-                  instance_type=instance_type)
+    try:
+        r = image.run(min_count=num_cannons,
+                      max_count=num_cannons,
+                      placement=placement,
+                      security_groups=security_groups,
+                      key_name=key_pair_name,
+                      instance_type=instance_type)
+    except boto.exception.EC2ResponseError, e:
+        print 'ERROR: Deploy failed: %s' % e
+        return
 
     hosts = []
     running = False

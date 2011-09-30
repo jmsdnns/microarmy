@@ -75,7 +75,15 @@ This is what it looks like to use microarmy.
 
 ## Configure siege dynamically
 
-Typically you'd want to configure the siege config in your `local_settings.py`, but in case you want to configure it dynamically...
+Typically you'd want to configure the siege config in your `local_settings.py` like so...
+
+    siege_config = {
+        'connection': 'close',
+        'concurrency': 5,
+        'internet': 'true'
+    }
+
+If you wish to configure it dynamically...
 
     microarmy> config_siege
       Siege config detected in settings and will be automatically deployed with "setup"
@@ -84,15 +92,22 @@ Typically you'd want to configure the siege config in your `local_settings.py`, 
       Siege config written, deploying to cannons
       Configuring siege...  Done!
 
-This will write a `~/.siegerc config` on the cannon machines like so:
+All of the above will write a `~/.siegerc` config on the cannon machines like so:
 
     connection = close
     benchmark = true
     concurrency = 5
 
-## Configure siege urls dynamically
+## Configure siege urls
 
-Typically you'd want to configure the urls for siege to hit in your `local_settings.py`, but in case you want to configure them dynamically...
+Typically you'd want to configure the urls for siege to hit in your `local_settings.py` like so:
+
+    siege_urls = [
+       'http://localhost/',
+       'http://localhost/test'
+    ]
+
+If you wish to configure them dynamically...
 
     microarmy> siege_urls
       Urls detected in settings and will be automatically deployed with "setup"
@@ -101,7 +116,7 @@ Typically you'd want to configure the urls for siege to hit in your `local_setti
       Urls written, deploying to cannons
       Configuring urls...  Done!
 
-This will write `~/urls.txt` on the cannon machines like so:
+All of the above will write `~/urls.txt` on the cannon machines like so:
 
     http://localhost/
     http://localhost/test/
@@ -119,6 +134,30 @@ To switch back to your configured urls...
 
     microarmy> all_urls
       Using configured urls
+
+## Find and reuse previously deployed cannons
+
+Sometimes you might forget that you deployed a whole mess of cannons already. In that case, run the following...
+
+   microarmy> find_cannons
+   Deployed cannons: [(u'i-1a6d127a', u'ec2-50-17-80-241.compute-1.amazonaws.com'), (u'i-1c6d127c', u'ec2-184-73-117-126.compute-1.amazonaws.com'), (u'i-e06d1280', u'ec2-50-16-106-209.compute-1.amazonaws.com'), (u'i-e26d1282', u'ec2-50-17-26-28.compute-1.amazonaws.com'), (u'i-e46d1284', u'ec2-50-16-169-72.compute-1.amazonaws.com'), (u'i-e66d1286', u'ec2-184-73-114-245.compute-1.amazonaws.com'), (u'i-e86d1288', u'ec2-184-72-92-234.compute-1.amazonaws.com'), (u'i-ea6d128a', u'ec2-184-73-148-253.compute-1.amazonaws.com'), (u'i-ec6d128c', u'ec2-107-20-112-149.compute-1.amazonaws.com'), (u'i-ee6d128e', u'ec2-50-16-24-210.compute-1.amazonaws.com'), (u'i-f06d1290', u'ec2-204-236-251-120.compute-1.amazonaws.com'), (u'i-f46d1294', u'ec2-50-19-24-63.compute-1.amazonaws.com'), (u'i-f66d1296', u'ec2-107-20-95-203.compute-1.amazonaws.com'), (u'i-f86d1298', u'ec2-174-129-76-108.compute-1.amazonaws.com'), (u'i-fa6d129a', u'ec2-50-16-64-128.compute-1.amazonaws.com')]
+   Would you like to import these cannons now? (y/n) y
+
+Now you have a whole new mess of cannons to fire away. To be safe, you may want to run `setup` again.
+
+## Terminate all cannons we know about
+
+Thanks to tagging instances in EC2, we can get an inventory of all the cannons we've deployed over time.
+That's good because you don't want to leave those little beasts running.
+
+If you're all done and want to be sure your instances are terminated, do the following...
+
+    microarmy> find_cannons
+    Deployed cannons: [(u'i-1a6d127a', u'ec2-50-17-80-241.compute-1.amazonaws.com'), (u'i-1c6d127c', u'ec2-184-73-117-126.compute-1.amazonaws.com'), (u'i-e06d1280', u'ec2-50-16-106-209.compute-1.amazonaws.com'), (u'i-e26d1282', u'ec2-50-17-26-28.compute-1.amazonaws.com'), (u'i-e46d1284', u'ec2-50-16-169-72.compute-1.amazonaws.com'), (u'i-e66d1286', u'ec2-184-73-114-245.compute-1.amazonaws.com'), (u'i-e86d1288', u'ec2-184-72-92-234.compute-1.amazonaws.com'), (u'i-ea6d128a', u'ec2-184-73-148-253.compute-1.amazonaws.com'), (u'i-ec6d128c', u'ec2-107-20-112-149.compute-1.amazonaws.com'), (u'i-ee6d128e', u'ec2-50-16-24-210.compute-1.amazonaws.com'), (u'i-f06d1290', u'ec2-204-236-251-120.compute-1.amazonaws.com'), (u'i-f46d1294', u'ec2-50-19-24-63.compute-1.amazonaws.com'), (u'i-f66d1296', u'ec2-107-20-95-203.compute-1.amazonaws.com'), (u'i-f86d1298', u'ec2-174-129-76-108.compute-1.amazonaws.com'), (u'i-fa6d129a', u'ec2-50-16-64-128.compute-1.amazonaws.com')]
+    Would you like to import these cannons now? (y/n) y
+    microarmy> cleanup
+    Deployed cannons destroyed
+
 
 ## Requirements
 

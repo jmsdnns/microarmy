@@ -100,7 +100,7 @@ class Commands(object):
     def do_term(self, line):
         """Terminate cannons"""
         if not self._cannon_infos:
-            print 'No cannons defined, try "config" or "deploy"'
+            print 'ERROR: No cannons defined, try "config" or "deploy"'
             return
 
         terminate_cannons([h[0] for h in self._cannon_infos])
@@ -117,31 +117,31 @@ class Commands(object):
     def do_setup(self, line):
         """Setup system, deploy configs and urls"""
         if not self._cannon_infos:
-            print '  No cannons defined, try "config" or "deploy"'
+            print 'ERROR: No cannons defined, try "config" or "deploy"'
             return
 
         start_time = time.time()
-        print '  Setting up cannons'
+        print 'Setting up cannons'
         self._cannon_hosts = [h[1] for h in self._cannon_infos]
         status = setup_cannons(self._cannon_hosts)
 
         if self._siege_config:
             if self._write_siege_config(self._siege_config):
-                print '  Siege config written, deploying to cannons'
+                print 'Siege config written, deploying to cannons'
                 setup_siege(self._cannon_hosts)
             else:
-                print '  Error writing new siege config'
+                print 'ERROR: Cannot write new siege config'
 
         if self._siege_urls:
             if self._write_siege_urls(self._siege_urls):
-                print '  Siege urls written, deploying to cannons'
+                print 'Siege urls written, deploying to cannons'
                 setup_siege_urls(self._cannon_hosts)
             else:
-                print '  Error writing urls'
+                print 'ERROR: Cannot write urls'
 
-        print '  Finished setup - time: %s' % (time.time()-start_time)
+        print 'Finished setup - time: %s' % (time.time()-start_time)
 
-        print '  Sending reboot message to cannons'
+        print 'Sending reboot message to cannons'
         reboot_cannons([h[0] for h in self._cannon_infos])
         self._cannons_deployed = True
 
@@ -160,7 +160,7 @@ class Commands(object):
                 setup_siege(self._cannon_hosts)
                 self._siege_config = eval(siegerc)
             else:
-                print '  Error writing new siege config'
+                print 'ERROR: Cannot write new siege config'
         else:
             print 'ERROR: Cannons not deployed yet'
 
@@ -175,23 +175,23 @@ class Commands(object):
 
             siege_urls = raw_input('  Enter urls: ')
             if self._write_siege_urls(eval(siege_urls)):
-                print '  Urls written, deploying to cannons'
+                print 'Urls written, deploying to cannons'
                 setup_siege_urls(self._cannon_hosts)
                 self._siege_urls = eval(siege_urls)
             else:
-                print '  Error writing new urls'
+                print 'ERROR: Cannot write new urls'
         else:
             print 'ERROR: Cannons not deployed yet'
 
     def do_single_url(self, line):
         """Bypass configured urls, allowing to specify one dynamically"""
         self._bypass_urls = True
-        print '  Bypassing configured urls'
+        print 'Bypassing configured urls'
 
     def do_all_urls(self, line):
         """Disable 'single_url' mode"""
         self._bypass_urls = False
-        print '  Using configured urls'
+        print 'Using configured urls'
 
     def do_status(self, line):
         """Get information about current cannons, siege configs and urls"""
@@ -228,7 +228,7 @@ class Commands(object):
         hosts = find_deployed_cannons()
         if hosts:
             print 'Deployed cannons:', hosts
-            answer = raw_input('  Would you like to import these cannons now? (y/n) ')
+            answer = raw_input('Would you like to import these cannons now? (y/n) ')
             if answer.lower() == 'n':
                 return
             self.do_config(None, hosts)
@@ -238,7 +238,7 @@ class Commands(object):
     def do_cleanup(self, line):
         """Find all cannons we have deployed, destroy them all"""
         destroy_deployed_cannons()
-        print '  Deployed cannons destroyed'
+        print 'Deployed cannons destroyed'
 
     def do_fire(self, line):
         """Fires the cannons, asks for URL if none are defined in settings"""
@@ -250,7 +250,7 @@ class Commands(object):
                 if target != '':
                     report = slam_host(self._cannon_hosts, target)
                 else:
-                    print '  No target specified'
+                    print 'ERROR: No target specified'
                     return
 
             if isinstance(report, str):
