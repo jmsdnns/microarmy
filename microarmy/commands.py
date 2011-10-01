@@ -106,6 +106,24 @@ class CommandCenter(cmd.Cmd):
 
         return return_status
 
+    def do_long_help(self, line):
+        """Long help output"""
+        print """
+        long_help:    This.
+        status:       Get info about current cannons
+        deploy:       Deploys N cannons
+        setup:        Runs the setup functions on each host
+        config:       Allows a user to specify existing cannons
+        config_siege: Create siege config from specified dictionary
+        siege_urls:   Specify list of URLS to test against
+        single_url:   Only hit one url when firing off your next test
+        all_urls:     Revert to using configured urls (turns off single_url)
+        fire:         Asks for a url and then fires the cannons
+        mfire:        Runs `fire` multiple times and aggregates totals
+        term:         Terminate cannons
+        quit:         Exit command center
+        """
+
     def do_deploy(self, line):
         """Deploy N cannons"""
         start_time = time.time()

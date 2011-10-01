@@ -32,9 +32,9 @@ This is what it looks like to use microarmy.
 
     $ ./command_center.py
 
-    microarmy> help
+    microarmy> long_help
 
-      help:         This menu.
+      long_help:    This.
       status:       Get info about current cannons
       deploy:       Deploys N cannons
       setup:        Runs the setup functions on each host
