@@ -36,16 +36,31 @@ except ImportError:
     _siege_urls = None
 
 
-class Commands(object):
+class CommandCenter(cmd.Cmd):
     """Commands and helpers for command center."""
 
+    prompt = 'microarmy> '
+
     def __init__(self):
+        cmd.Cmd.__init__(self)
         self._cannons_deployed = False
         self._cannon_hosts = None
         self._cannon_infos = None
         self._bypass_urls = False
         self._siege_urls = _siege_urls
         self._siege_config = _siege_config
+
+    def default(self, line):
+        print
+        print 'Cannot find command: "%s"' % line
+        self.do_help(None)
+
+    def emptyline(self):
+        pass
+
+    def do_EOF(self, line):
+        print 'bye'
+        return True
 
     def _write_siege_config(self, siegerc):
         """Write siege config to local disk before deploying"""
@@ -308,28 +323,3 @@ class Commands(object):
             print 'Total:', total_transactions
         else:
             print 'ERROR: Cannons not deployed yet'
-
-
-class CommandCenter(cmd.Cmd, Commands):
-    """Simple command center shell.
-    "Mixes in" commands in Commands for dispatch.
-    Should probably actually write a mixin.
-    """
-
-    prompt = 'microarmy> '
-
-    def __init__(self):
-        Commands.__init__(self)
-        super(CommandCenter, self).__init__()
-
-    def default(self, line):
-        print
-        print 'Cannot find command: "%s"' % line
-        self.do_help(None)
-
-    def emptyline(self):
-        pass
-
-    def do_EOF(self, line):
-        print 'bye'
-        return True
