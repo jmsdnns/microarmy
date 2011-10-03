@@ -13,6 +13,7 @@ import datetime
 import sys
 import cmd
 
+import settings
 from microarmy.firepower import (init_cannons,
                                  terminate_cannons,
                                  reboot_cannons,
@@ -23,23 +24,10 @@ from microarmy.firepower import (init_cannons,
                                  find_deployed_cannons,
                                  destroy_deployed_cannons)
 
-try:
-    from settings import siege_config as _siege_config
-except ImportError:
-    print 'No siege config detected, continuting...'
-    _siege_config = None
-
-try:
-    from settings import siege_urls as _siege_urls
-except ImportError:
-    print 'No siege urls detected, continuting...'
-    _siege_urls = None
-
 
 class CommandCenter(cmd.Cmd):
     """Commands and helpers for command center."""
 
-    prompt = 'microarmy> '
 
     def __init__(self):
         cmd.Cmd.__init__(self)
@@ -47,8 +35,9 @@ class CommandCenter(cmd.Cmd):
         self._cannon_hosts = None
         self._cannon_infos = None
         self._bypass_urls = False
-        self._siege_urls = _siege_urls
-        self._siege_config = _siege_config
+        self._siege_urls = settings.siege_urls or None
+        self._siege_config = settings.siege_config or None
+        self.prompt = 'microarmy> '
 
     def default(self, line):
         print
