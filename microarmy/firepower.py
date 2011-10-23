@@ -47,9 +47,9 @@ CLOUD_INIT_DATA ={
         #'python-dev', 'build-essential', 'autoconf', 'automake', 'libtool',
         #'uuid-dev', 'git-core', 'mercurial', 'python-pip'],
     'runcmd': [
-        ['bash', '-c', "echo fs.file-max = 1000000 | tee -a /etc/sysctl.conf"],
-        ['bash', '-c', "echo ubuntu  soft  nofile  1000000 | tee -a /etc/security/limits.conf"],
-        ['bash', '-c', "echo ubuntu  hard  nofile  1000000 | tee -a /etc/security/limits.conf"],
+        ['bash', '-c', 'echo fs.file-max = 1000000 | tee -a /etc/sysctl.conf'],
+        ['bash', '-c', 'echo ubuntu  soft  nofile  1000000 | tee -a /etc/security/limits.conf'],
+        ['bash', '-c', 'echo ubuntu  hard  nofile  1000000 | tee -a /etc/security/limits.conf'],
         ['sysctl', '-n', '-p'],
     ]
 }
