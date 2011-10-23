@@ -25,17 +25,22 @@ num_cannons = 5
 placement = 'us-east-1a'
 
 ### ami key from: http://uec-images.ubuntu.com/releases/10.10/release/
-ami_key = 'ami-ccf405a5'
+ami_key = 'ami-a7f539ce'
 instance_type = 't1.micro'
+
+### enable cloud init, so that a second deploy step is not required
+enable_cloud_init = True
 
 ### scripts for building environments
 env_scripts_dir = os.path.abspath(os.path.dirname('./env_scripts/'))
 
 ### Siege config settings
-# siege_config = {
-#     'connection': 'close',
-#     'internet': 'true
-# }
+siege_config = {
+    'connection': 'close',
+    'concurrency': 200,
+    'internet': 'true',
+    'time': '5M'
+}
 
 ### Siege urls
 # siege_urls = [
