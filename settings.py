@@ -25,7 +25,7 @@ num_cannons = 5
 ### Availbility zones: http://alestic.com/2009/07/ec2-availability-zones
 placement = 'us-east-1a'
 
-### ami key from: http://uec-images.ubuntu.com/releases/10.10/release/
+### ami key from: http://uec-images.ubuntu.com/releases/11.10/release/
 ami_key = 'ami-a7f539ce'
 instance_type = 't1.micro'
 
