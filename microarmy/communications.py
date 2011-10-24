@@ -25,10 +25,12 @@ def ssh_connect(host, port=22):
 
             # if the password wasn't defined in settings, ask for it
             if not ec2_ssh_key_password:
-                ec2_ssh_key_password = getpass.getpass(prompt='\nFound an encrypted private SSH key, please enter your decryption password: ')
+                rsa_key_password = getpass.getpass(prompt='\nFound an encrypted private SSH key, please enter your decryption password: ')
+            else:
+                rsa_key_password = ec2_ssh_key_password
 
             # setup the pkey object by reading the file from disk, with a decryption password
-            rsa_key = paramiko.RSAKey.from_private_key_file(os.path.expanduser(ec2_ssh_key), password=ec2_ssh_key_password)
+            rsa_key = paramiko.RSAKey.from_private_key_file(os.path.expanduser(ec2_ssh_key), password=rsa_key_password)
 
         # pass pkey object to connection
         transport.connect(username=ec2_ssh_username, pkey=rsa_key)
