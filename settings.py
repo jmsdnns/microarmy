@@ -17,6 +17,7 @@ key_pair_name = None #*
 ### Will resolve ~
 ec2_ssh_key = None #*
 ec2_ssh_username = 'ubuntu' # ami specific
+ec2_ssh_key_password = None # only required if your ssh key is encrypted
 
 ### five cannons is a healthy blast
 num_cannons = 5
