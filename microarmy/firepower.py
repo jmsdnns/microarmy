@@ -22,6 +22,7 @@ from settings import (
     instance_type,
     enable_cloud_init,
     env_scripts_dir,
+    ec2_ssh_username,
 )
 
 pool = eventlet.GreenPool()
@@ -220,10 +221,18 @@ def fire_cannon(cannon_host, target):
     """Handles the details of telling a host to fire"""
     ssh_conn = ssh_connect(cannon_host)
 
-    if target:
-        remote_command = 'siege --rc /home/ubuntu/.siegerc %s' % (target)
+    # check to see if the siege file has been created, if not fire the canon
+    # with some reasonable defaults
+    if os.path.isfile("/home/%s/.siegerc" % (ec2_ssh_username)):
+        siege_options = '--rc /home/%s/.siegerc' % (ec2_ssh_username)
     else:
-        remote_command = 'siege --rc /home/ubuntu/.siegerc -f ~/urls.txt'
+        siege_options = '-c200 -t60s'
+
+    # run the siege command
+    if target:
+        remote_command = 'siege %s %s' % (siege_options, target)
+    else:
+        remote_command = 'siege %s -f ~/urls.txt' % (siege_options)
 
     # Siege writes stats to stderr
     response = exec_command(ssh_conn, remote_command, return_stderr=True)
