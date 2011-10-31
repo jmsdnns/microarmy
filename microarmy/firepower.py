@@ -223,8 +223,8 @@ def fire_cannon(cannon_host, target):
 
     # check to see if the siege file has been created, if not fire the canon
     # with some reasonable defaults
-    if os.path.isfile("/home/%s/.siegerc" % (ec2_ssh_username)):
-        siege_options = '--rc /home/%s/.siegerc' % (ec2_ssh_username)
+    if os.path.isfile("%s/.siegerc" % (os.path.expanduser('~' + ec2_ssh_username)) ):
+        siege_options = '--rc %s/.siegerc' % (os.path.expanduser('~' + ec2_ssh_username)
     else:
         siege_options = '-c200 -t60s'
 
