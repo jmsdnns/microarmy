@@ -222,7 +222,8 @@ def fire_cannon(cannon_host, target):
     ssh_conn = ssh_connect(cannon_host)
 
     # check to see if the siege file has been created, if not fire the canon
-    # with some reasonable defaults
+    # with some reasonable defaults. os.path.expanduser will return the ec2
+    # user's homedir, most likely /home/ubuntu
     if os.path.isfile("%s/.siegerc" % (os.path.expanduser('~' + ec2_ssh_username)) ):
         siege_options = '--rc %s/.siegerc' % (os.path.expanduser('~' + ec2_ssh_username)
     else:
