@@ -49,8 +49,8 @@ CLOUD_INIT_DATA ={
         #'uuid-dev', 'git-core', 'mercurial', 'python-pip'],
     'runcmd': [
         ['bash', '-c', 'echo fs.file-max = 1000000 | tee -a /etc/sysctl.conf'],
-        ['bash', '-c', 'echo ubuntu  soft  nofile  1000000 | tee -a /etc/security/limits.conf'],
-        ['bash', '-c', 'echo ubuntu  hard  nofile  1000000 | tee -a /etc/security/limits.conf'],
+        ['bash', '-c', 'echo ' + ec2_ssh_username + '  soft  nofile  1000000 | tee -a /etc/security/limits.conf'],
+        ['bash', '-c', 'echo ' + ec2_ssh_username + '  hard  nofile  1000000 | tee -a /etc/security/limits.conf'],
         ['sysctl', '-n', '-p'],
     ]
 }
