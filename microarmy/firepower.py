@@ -49,8 +49,8 @@ CLOUD_INIT_DATA ={
         #'uuid-dev', 'git-core', 'mercurial', 'python-pip'],
     'runcmd': [
         ['bash', '-c', 'echo fs.file-max = 1000000 | tee -a /etc/sysctl.conf'],
-        ['bash', '-c', 'echo ubuntu  soft  nofile  1000000 | tee -a /etc/security/limits.conf'],
-        ['bash', '-c', 'echo ubuntu  hard  nofile  1000000 | tee -a /etc/security/limits.conf'],
+        ['bash', '-c', 'echo ' + ec2_ssh_username + '  soft  nofile  1000000 | tee -a /etc/security/limits.conf'],
+        ['bash', '-c', 'echo ' + ec2_ssh_username + '  hard  nofile  1000000 | tee -a /etc/security/limits.conf'],
         ['sysctl', '-n', '-p'],
     ]
 }
@@ -222,9 +222,10 @@ def fire_cannon(cannon_host, target):
     ssh_conn = ssh_connect(cannon_host)
 
     # check to see if the siege file has been created, if not fire the canon
-    # with some reasonable defaults
-    if os.path.isfile("/home/%s/.siegerc" % (ec2_ssh_username)):
-        siege_options = '--rc /home/%s/.siegerc' % (ec2_ssh_username)
+    # with some reasonable defaults. os.path.expanduser will return the ec2
+    # user's homedir, most likely /home/ubuntu
+    if os.path.isfile("%s/.siegerc" % (os.path.expanduser('~' + ec2_ssh_username)) ):
+        siege_options = '--rc %s/.siegerc' % (os.path.expanduser('~' + ec2_ssh_username))
     else:
         siege_options = '-c200 -t60s'
 
