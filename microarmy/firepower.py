@@ -2,6 +2,7 @@ import eventlet
 import boto
 import time
 import os
+import yaml
 
 from microarmy.communications import (
     ssh_connect,
@@ -19,7 +20,9 @@ from settings import (
     placement,
     ami_key,
     instance_type,
+    enable_cloud_init,
     env_scripts_dir,
+    ec2_ssh_username,
 )
 
 pool = eventlet.GreenPool()
@@ -39,6 +42,26 @@ class UnparsableData(Exception):
 CANNON_INIT_SCRIPT = 'build_cannon.sh'
 SIEGE_CONFIG = 'siegerc'
 URLS = 'urls.txt'
+CLOUD_INIT_DATA ={
+    'apt_update': True,
+    'packages':['siege'],
+        #'python-dev', 'build-essential', 'autoconf', 'automake', 'libtool',
+        #'uuid-dev', 'git-core', 'mercurial', 'python-pip'],
+    'runcmd': [
+        ['bash', '-c', 'echo fs.file-max = 1000000 | tee -a /etc/sysctl.conf'],
+        ['bash', '-c', 'echo ubuntu  soft  nofile  1000000 | tee -a /etc/security/limits.conf'],
+        ['bash', '-c', 'echo ubuntu  hard  nofile  1000000 | tee -a /etc/security/limits.conf'],
+        ['sysctl', '-n', '-p'],
+    ]
+}
+
+def _prepare_user_data():
+    '''if cloud-init is enabled, return formatted user-data variable.'''
+    if enable_cloud_init:
+        return '#cloud-config\n' + yaml.dump(CLOUD_INIT_DATA)
+    else:
+        return None
+
 
 def init_cannons():
     """Creates the ec2 instances and returns a list of publicly accessible
@@ -50,8 +73,15 @@ def init_cannons():
     images = ec2_conn.get_all_images(ami_key)
     image = images[0]
 
+    ### if cloud-init is enabled, prepare yaml for user-data
+    user_data = _prepare_user_data()
+
     ### Will need unbuffered output
-    print 'Deploying cannons... ',
+    print 'Deploying cannons...\n',
+
+    ### Display yaml sent to user-data
+    if user_data:
+        print 'cloud-init configuration sent to EC2 API:\n' + user_data
 
     ### Create n instances
     try:
@@ -60,7 +90,8 @@ def init_cannons():
                       placement=placement,
                       security_groups=security_groups,
                       key_name=key_pair_name,
-                      instance_type=instance_type)
+                      instance_type=instance_type,
+                      user_data=user_data)
     except boto.exception.EC2ResponseError, e:
         print 'ERROR: Deploy failed: %s' % e
         return
@@ -190,10 +221,18 @@ def fire_cannon(cannon_host, target):
     """Handles the details of telling a host to fire"""
     ssh_conn = ssh_connect(cannon_host)
 
-    if target:
-        remote_command = 'siege -c300 -t10s %s' % (target)
+    # check to see if the siege file has been created, if not fire the canon
+    # with some reasonable defaults
+    if os.path.isfile("/home/%s/.siegerc" % (ec2_ssh_username)):
+        siege_options = '--rc /home/%s/.siegerc' % (ec2_ssh_username)
     else:
-        remote_command = 'siege -c300 -t10s -f ~/urls.txt'
+        siege_options = '-c200 -t60s'
+
+    # run the siege command
+    if target:
+        remote_command = 'siege %s %s' % (siege_options, target)
+    else:
+        remote_command = 'siege %s -f ~/urls.txt' % (siege_options)
 
     # Siege writes stats to stderr
     response = exec_command(ssh_conn, remote_command, return_stderr=True)

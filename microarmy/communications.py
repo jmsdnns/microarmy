@@ -1,8 +1,10 @@
 import paramiko
 import os
+import getpass
 
 from settings import (
     ec2_ssh_key,
+    ec2_ssh_key_password,
     ec2_ssh_username,
 )
 
@@ -15,8 +17,24 @@ def ssh_connect(host, port=22):
     transport = paramiko.Transport((host, port))
     
     if os.path.exists(os.path.expanduser(ec2_ssh_key)):
-        rsa_key = paramiko.RSAKey.from_private_key_file(os.path.expanduser(ec2_ssh_key))
+        try:
+            rsa_key = paramiko.RSAKey.from_private_key_file(os.path.expanduser(ec2_ssh_key))
+        
+        # an exception is thrown if the ssh private key is encrypted
+        except paramiko.PasswordRequiredException:
+
+            # if the password wasn't defined in settings, ask for it
+            if not ec2_ssh_key_password:
+                rsa_key_password = getpass.getpass(prompt='\nFound an encrypted private SSH key, please enter your decryption password: ')
+            else:
+                rsa_key_password = ec2_ssh_key_password
+
+            # setup the pkey object by reading the file from disk, with a decryption password
+            rsa_key = paramiko.RSAKey.from_private_key_file(os.path.expanduser(ec2_ssh_key), password=rsa_key_password)
+
+        # pass pkey object to connection
         transport.connect(username=ec2_ssh_username, pkey=rsa_key)
+            
     else:
         raise TypeError("Incorrect private key path")
     
