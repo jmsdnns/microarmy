@@ -225,7 +225,7 @@ def fire_cannon(cannon_host, target):
     # with some reasonable defaults. os.path.expanduser will return the ec2
     # user's homedir, most likely /home/ubuntu
     if os.path.isfile("%s/.siegerc" % (os.path.expanduser('~' + ec2_ssh_username)) ):
-        siege_options = '--rc %s/.siegerc' % (os.path.expanduser('~' + ec2_ssh_username)
+        siege_options = '--rc %s/.siegerc' % (os.path.expanduser('~' + ec2_ssh_username))
     else:
         siege_options = '-c200 -t60s'
 
