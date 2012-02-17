@@ -18,6 +18,12 @@ which then aggregates this data into a CSV.
 After running the test you can shut down all of your micros and quit micro army.
 
 
+## Slides
+
+I gave a talk on Micro Army back in May of 2011. The slides are available
+(here)[http://j2labs.tumblr.com/post/5823446661/micro-army-slides-from-my-talk].
+
+
 ## 100 boxes in parallel
 
 I recently tested deployment of 100 ec2 micros.  On average I found I was able
