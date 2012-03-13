@@ -170,7 +170,7 @@ If you're all done and want to be sure your instances are terminated, do the fol
 There are only a few requirements. Everything required for the micros is
 installed on the micros, after all.
 
-    $ pip install eventlet paramiko boto
+    $ pip install eventlet paramiko boto pyyaml
 
 ## Config
 
