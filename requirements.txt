@@ -1,3 +1,4 @@
 boto==2.0
 eventlet==0.9.16
 paramiko==1.7.7.1
+pyyaml==3.10
